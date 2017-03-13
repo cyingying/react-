@@ -6,11 +6,30 @@ import '../less/Change.less';
 
 
 var Table = React.createClass({
+    getInitialState:function() {
+      return {
+          sort:false
+      }
+    },
     onCancleFun:function(item) {
        this.props.onHandleCancleFun(item);
     },
     onChangFun: function(item) {
         this.props.onHandleChangFun(item);
+    },
+    onSortHandle:function(e) {
+       var sort = !(this.state.sort); 
+       this.setState({
+           sort:sort
+       })
+       this.props.onSortHandleFun(e.target.innerText,sort);
+    },
+    onSortHandle2:function(e) {
+       var sort = !(this.state.sort); 
+       this.setState({
+           sort:sort
+       })
+       this.props.onSortHandleFun(e.target.innerText,sort);
     },
     render:function() {
         var data = this.props.data;
@@ -36,8 +55,14 @@ var Table = React.createClass({
                     <tr>
                        <td>ID</td>
                        <td>姓名</td>
-                       <td>年龄</td>
-                       <td>入职日期</td>
+                       <td className='td1'>年龄
+                         <span onClick={this.onSortHandle}>^</span>
+                         <span onClick={this.onSortHandle}>?</span>
+                       </td>
+                       <td className='td2'>入职日期
+                          <span onClick={this.onSortHandle2}>^</span>
+                          <span onClick={this.onSortHandle2}>?</span>
+                       </td>
                        <td>职位</td>
                        <td>操作</td>
                     </tr>
@@ -96,6 +121,9 @@ var Change = React.createClass({
            trueChange:trueChange
        })
        this.props.onHandleTrueChange(trueChange);
+    //真正的修改还没完成
+
+    // -------------------------
     },
     render:function() {
         var style = {};
@@ -109,7 +137,7 @@ var Change = React.createClass({
                   <lable>ID:</lable><span>1</span>
                </div>
                <div>
-                  姓名:<input type="text" placeholder={item.name}/>
+                  姓名:<input type="text" placeholder={item.name} ref='inp'/>
                </div> 
                <div>
                    年龄:<input type="text" placeholder={item.age}/>
@@ -121,7 +149,7 @@ var Change = React.createClass({
                     职位:<input type="text" placeholder={item.position}/>
                </div>
                <div>
-                   <input type="submit" value='确认' className='inp1' onClick={this.onTrueChange&&this.props.onChangeFun}/>
+                   <button onClick={this.onTrueChange&&this.props.onChangeFun}>确定</button>
                    <button onClick={this.props.onChangeFun}>取消</button>
                </div>
             </div>
@@ -139,7 +167,8 @@ var App = React.createClass({
            trueCancle:'',
            focus:'',
            trueChange:'',
-           filter:''
+           filter:'',
+           sort:''
        }
     },
     onCancleFun:function(item,trueCancle) {
@@ -157,7 +186,7 @@ var App = React.createClass({
           }
        })   
        if(trueCancle){
-          data = newData;
+           data = newData;
        }
     },
     onChangeFun:function(item) {
@@ -171,12 +200,45 @@ var App = React.createClass({
         this.setState({
             trueChange:trueChange,
         })
-        // console.log(item);
+
+    //真正的修改没完成
+    },
+    onSortHandleFun:function(text,sort){
+      this.setState({
+          sort:sort
+      })
+      if(sort) {
+         if(text == '^') {
+           this.props.data.sort( function(a,b)  {
+             return a.age - b.age 
+          })
+         }else if(text = '?') {
+           this.props.data.sort( function(a,b) {
+              return b.age - a.age 
+         })
+       }
+      }
+    },
+    onSortHandle2:function(text,sort) {
+          this.setState({
+          sort:sort
+      })
+      if(sort) {
+         if(text == '^') {
+           this.props.data.sort( function(a,b)  {
+             return a.hiredate - b.hiredate 
+          })
+         }else if(text = '?') {
+           this.props.data.sort( function(a,b) {
+              return b.hiredate - a.hiredate 
+         })
+       }
+      }
     },
     render:function() {
         return (
             <div>
-                <Table data={data} trueCancle={this.state.trueCancle} showCancle={this.state.showCancle} onHandleCancleFun={this.onCancleFun} onHandleChangFun={this.onChangeFun}></Table>
+                <Table data={data} sort={this.state.sort} trueCancle={this.state.trueCancle} onSortHandle2={this.onSortHandle2} onSortHandleFun={this.onSortHandleFun} showCancle={this.state.showCancle} onHandleCancleFun={this.onCancleFun} onHandleChangFun={this.onChangeFun}></Table>
                 <Cancle item={this.state.item} showCancle={this.state.showCancle} onCancleFun={this.onCancleFun} onHandleCancle={this.onCancleFun}></Cancle>
                 <Change trueChange={this.state.trueChange} item={this.state.item} onHandleTrueChange={this.onHandleTrueChange} showChange={this.state.showChange} onChangeFun={this.onChangeFun} onHandleFocusFun={this.onHandleFocusFun}></Change>
             </div>
@@ -192,19 +254,19 @@ var data = [
       "hiredate":"2016-09-10",
       "position":"前端工程师",
     },
+     {
+      "ID":3,
+      "name":"yingying",
+      "age":18,
+      "hiredate":"2017-03-10",
+      "position":"前端实习生",
+    },
     {
       "ID":2,
       "name":"李四",
       "age":22,
       "hiredate":"2016-10-10",
       "position":"java工程师",
-    },
-    {
-      "ID":3,
-      "name":"yingying",
-      "age":18,
-      "hiredate":"2017-03-10",
-      "position":"前端实习生",
     }
 ]
 
